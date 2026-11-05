@@ -25,6 +25,11 @@
   --font-mono: "Cascadia Code", "Consolas", "Courier New", monospace;
   --titlebar-h: 32px;
   --ruler-size: 20px;
+  /* A4 portrait @ 96 dpi : 210×297 mm → ~794×1123 px */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-width-px: 794px;
+  --page-height-px: 1123px;
 }
 
 [data-theme="dark"] {
@@ -506,8 +511,8 @@ input {
 
 .mord-ruler-h-track {
   position: absolute;
-  left: max(0px, calc(50% - 408px));
-  width: min(816px, 100%);
+  left: max(0px, calc(50% - (var(--page-width-px) / 2)));
+  width: min(var(--page-width-px), 100%);
   height: 100%;
 }
 
@@ -515,13 +520,32 @@ input {
   position: absolute;
   top: 0;
   height: 100%;
-  border-left: 1px solid #bbb;
+  width: 0;
+  border-left: 1px solid #c0c0c0;
   transform: translateX(-50%);
+}
+
+.mord-ruler-h-mark.is-major {
+  border-left-color: #888;
+}
+
+.mord-ruler-h-mark::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  bottom: 0;
+  width: 1px;
+  height: 6px;
+  background: #888;
+}
+
+.mord-ruler-h-mark.is-major::after {
+  height: 10px;
 }
 
 .mord-ruler-h-mark span {
   position: absolute;
-  top: 2px;
+  top: 1px;
   left: 3px;
   font-size: 9px;
   color: var(--text-muted);
@@ -537,30 +561,49 @@ input {
 }
 
 .mord-ruler-v-track {
+  /* Alignée sur le haut de la page A4 (padding vertical de .mord-page) */
   position: absolute;
   top: 24px;
   left: 0;
   width: 100%;
-  height: calc(100% - 48px);
+  height: var(--page-height-px);
 }
 
 .mord-ruler-v-mark {
   position: absolute;
   left: 0;
   width: 100%;
-  border-top: 1px solid #bbb;
+  border-top: 1px solid #c0c0c0;
+}
+
+.mord-ruler-v-mark.is-major {
+  border-top-color: #888;
+}
+
+.mord-ruler-v-mark::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 0;
+  height: 1px;
+  width: 6px;
+  background: #888;
+}
+
+.mord-ruler-v-mark.is-major::after {
+  width: 10px;
 }
 
 .mord-ruler-v-mark span {
   position: absolute;
   top: 2px;
-  left: 2px;
+  left: 1px;
   font-size: 8px;
   color: var(--text-muted);
-  writing-mode: horizontal-tb;
 }
 
 .mord-page {
+  position: relative;
   grid-column: 2;
   grid-row: 2;
   overflow: auto;
@@ -572,12 +615,30 @@ input {
 }
 
 .mord-editor-surface {
-  width: min(816px, 100%);
-  min-height: 1056px;
+  position: relative;
+  width: min(var(--page-width-px), 100%);
+  min-height: var(--page-height-px);
   background: var(--bg-doc);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
   border: 1px solid #777;
-  padding: 72px 72px 96px;
+  /* Marges ~2.5 cm type Word / A4 */
+  padding: 25mm;
+}
+
+/*
+ * Barre de sélection Word : du panneau latéral jusqu’au début du texte.
+ * Curseur = flèche système Windows (aero_arrow) retournée = pointeur « gaucher » / inversé.
+ * Fichier .cur natif (pas un PNG dessiné).
+ */
+.mord-line-select-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /* Espace gris à gauche de la page + marge gauche (~25mm) de la page A4 */
+  width: max(25mm, calc((100% - min(var(--page-width-px), 100%)) / 2 + 25mm));
+  z-index: 4;
+  cursor: url("/cursors/windows-arrow-right.cur"), default;
 }
 
 .mord-editor-surface .tiptap {

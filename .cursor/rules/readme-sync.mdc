@@ -1,0 +1,35 @@
+---
+description: Garder README.md synchronisé (présentation utilisateur)
+alwaysApply: true
+---
+
+# README utilisateur synchronisé
+
+`README.md` est la **vitrine utilisateur** (pourquoi Mord, installation, premiers pas).  
+La spec technique vit dans `docs/spec.md` — ne pas retransformer le README en doc d’archi.
+
+Après toute modification **visible pour l’utilisateur final**, mettre à jour le README dans le **même lot**.
+
+## Quand mettre à jour
+
+- Nouvelle capacité utile à un utilisateur non-dev (feature, raccourci, option)
+- Changement d’installateur / prérequis utilisateur / plateforme supportée
+- Changement de licence ou message de positionnement
+- Retrait d’une promesse déjà écrite dans le README
+
+Ne pas y coller stack, arborescence Rust, détails TipTap, etc. → `docs/spec.md`.
+
+## Comment
+
+- Français, ton accueillant et direct
+- Refléter l’**état réel** (pas de features non livrées)
+- Sections typiques : intro, pourquoi, capacités, install, premiers pas, raccourcis, lien contributeurs → `docs/spec.md`, licence
+- Pointer les détails techniques vers `docs/spec.md`
+- Coordonner avec la règle `spec-sync` : user-facing ici, technique là-bas
+
+## Exemple
+
+```text
+✅ Nouvel raccourci Ctrl+H → tableau Raccourcis du README (+ spec)
+❌ Nouveau module Rust md/parse.rs → README inchangé, spec éventuellement
+```

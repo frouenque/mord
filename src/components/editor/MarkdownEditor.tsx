@@ -1,5 +1,10 @@
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
-import { useEffect, useImperativeHandle, forwardRef } from "react";
+import {
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+  useRef,
+} from "react";
 import { editorExtensions } from "./extensions";
 
 export interface MarkdownEditorHandle {
@@ -29,9 +34,12 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, Props>(
     { initialContent = "", onUpdate, onReady, onSelectionUpdate },
     ref,
   ) {
+    const skipNextContentSync = useRef(false);
+
     const editor = useEditor({
       extensions: editorExtensions,
       content: initialContent,
+      immediatelyRender: false,
       editorProps: {
         attributes: {
           class: "mord-prose",
@@ -39,10 +47,8 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, Props>(
           lang: "fr",
         },
       },
-      onCreate: ({ editor: ed }) => {
-        onReady?.(ed);
-      },
       onUpdate: ({ editor: ed }) => {
+        skipNextContentSync.current = true;
         onUpdate?.(getMarkdownFrom(ed));
       },
       onSelectionUpdate: () => {
@@ -51,13 +57,19 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, Props>(
     });
 
     useEffect(() => {
+      if (editor) onReady?.(editor);
+    }, [editor, onReady]);
+
+    useEffect(() => {
       if (!editor) return;
+      if (skipNextContentSync.current) {
+        skipNextContentSync.current = false;
+        return;
+      }
       const current = getMarkdownFrom(editor);
       if (current !== initialContent) {
-        // emitUpdate: false évite de marquer le document comme modifié au chargement
         editor.commands.setContent(initialContent, { emitUpdate: false });
       }
-      // intentionally only when document is reloaded from parent
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialContent]);
 
@@ -66,6 +78,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorHandle, Props>(
       () => ({
         getMarkdown: () => getMarkdownFrom(editor),
         setMarkdown: (md: string) => {
+          skipNextContentSync.current = true;
           editor?.commands.setContent(md);
         },
         focus: () => {

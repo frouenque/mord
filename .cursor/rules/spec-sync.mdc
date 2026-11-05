@@ -1,0 +1,34 @@
+---
+description: Maintenir docs/spec.md synchronisé avec les évolutions de Mord
+alwaysApply: true
+---
+
+# Spec technique synchronisée
+
+`docs/spec.md` est la **source de vérité** produit + technique.  
+Après toute évolution qui change le comportement, l’architecture, les formats ou le périmètre, le mettre à jour dans le **même lot de changements**.
+
+## Quand mettre à jour
+
+- Nouvelle feature / onglet ruban / raccourci / option (autosave, thème, zoom, sélection ligne…)
+- Changement I/O (encodage, assets, formats), stack, modules Rust/front, scripts build
+- Décision produit (hors scope, plateformes, licence, dialecte MD)
+- Bump de version → refléter dans l’en-tête de `docs/spec.md`
+- Retrait ou limitation d’une capacité déjà documentée
+
+Ne pas toucher pour un fix purement interne sans impact spec (typo CSS, rename local non public).
+
+## Comment
+
+- Français, factuel, structuré comme le fichier existant
+- Décrire l’**état réel** du code — pas de roadmap non livrée
+- Séparer clairement : vision, édition, UI, technique, hors scope
+- Le **README.md** reste orienté **utilisateur** ; ne pas y déplacer la spec technique
+- Si README et spec divergent, corriger les deux selon leur rôle
+
+## Exemple
+
+```text
+✅ Ajout export PDF → section Fichiers + Hors scope (retirer « pas de PDF ») + README si visible user
+❌ Refacto interne de error.rs sans API → spec inchangée
+```

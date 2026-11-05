@@ -16,10 +16,11 @@ interface Props {
 function collectHeadings(editor: Editor | null): OutlineItem[] {
   if (!editor) return [];
   const items: OutlineItem[] = [];
+  let index = 0;
   editor.state.doc.descendants((node, pos) => {
     if (node.type.name === "heading") {
       items.push({
-        id: `h-${pos}`,
+        id: `h-${index++}-${node.attrs.level}-${node.textContent}`,
         level: node.attrs.level as number,
         text: node.textContent || "(sans titre)",
         pos,
@@ -33,12 +34,27 @@ export function OutlinePanel({ editor, visible }: Props) {
   const [items, setItems] = useState<OutlineItem[]>([]);
 
   useEffect(() => {
-    if (!editor) return;
-    const refresh = () => setItems(collectHeadings(editor));
+    if (!editor) {
+      setItems([]);
+      return;
+    }
+
+    let frame = 0;
+    const refresh = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        setItems(collectHeadings(editor));
+      });
+    };
+
     refresh();
     editor.on("update", refresh);
+    editor.on("transaction", refresh);
+
     return () => {
+      cancelAnimationFrame(frame);
       editor.off("update", refresh);
+      editor.off("transaction", refresh);
     };
   }, [editor]);
 
@@ -56,6 +72,7 @@ export function OutlinePanel({ editor, visible }: Props) {
               <button
                 type="button"
                 className="mord-outline-item"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   editor
                     ?.chain()

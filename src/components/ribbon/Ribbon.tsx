@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, MouseEvent } from "react";
 import type { Editor } from "@tiptap/react";
 import type { ThemeMode } from "../../lib/theme";
 
@@ -19,6 +19,11 @@ interface Props {
   onInsertLink: () => void;
   onInsertImage: () => void;
   onFind: () => void;
+}
+
+/** Empêche le blur de l'éditeur (sinon gras/italique/styles ne s'appliquent pas). */
+function keepEditorFocus(e: MouseEvent) {
+  e.preventDefault();
 }
 
 function Btn({
@@ -45,6 +50,7 @@ function Btn({
       title={title}
       aria-label={title}
       disabled={disabled}
+      onMouseDown={keepEditorFocus}
       onClick={onClick}
     >
       {children}
@@ -76,6 +82,7 @@ function StyleCard({
     <button
       type="button"
       className={`mord-style-card${active ? " is-active" : ""}`}
+      onMouseDown={keepEditorFocus}
       onClick={onClick}
       title={label}
     >
@@ -171,7 +178,6 @@ export function Ribbon(props: Props) {
 
         {tab === "accueil" && (
           <>
-            {/* Coller / Copier — Couper et pinceau exclus (croix) */}
             <Group label="Presse-papiers">
               <Btn
                 title="Coller"
@@ -187,7 +193,6 @@ export function Ribbon(props: Props) {
               </Btn>
             </Group>
 
-            {/* Gras / Italique seulement — reste police exclus ou non-MD */}
             <Group label="Police">
               <Btn
                 title="Gras (Ctrl+B)"
@@ -212,7 +217,6 @@ export function Ribbon(props: Props) {
               </Btn>
             </Group>
 
-            {/* Galerie de styles MD (équiv. Word Styles) */}
             <Group label="Styles">
               <div className="mord-styles-gallery">
                 <StyleCard
@@ -246,7 +250,6 @@ export function Ribbon(props: Props) {
 
         {tab === "insertion" && (
           <>
-            {/* Listes / structure MD — hors Accueil car croix Word sur puces */}
             <Group label="Listes">
               <Btn
                 title="Liste à puces"

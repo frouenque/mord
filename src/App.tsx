@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LineSelectZone } from "./components/editor/LineSelectZone";
 import { Rulers } from "./components/editor/Rulers";
 import {
   MarkdownEditor,
@@ -42,6 +43,7 @@ function basename(path: string | null): string {
 
 export default function App() {
   const editorRef = useRef<MarkdownEditorHandle>(null);
+  const pageRef = useRef<HTMLElement | null>(null);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [tab, setTab] = useState<RibbonTab>("accueil");
   const [path, setPath] = useState<string | null>(null);
@@ -80,6 +82,10 @@ export default function App() {
   const markDirty = useCallback((md: string) => {
     setContent(md);
     setDirty(true);
+  }, []);
+
+  const handleEditorReady = useCallback((ed: Editor) => {
+    setEditor(ed);
   }, []);
 
   const confirmDiscard = () => {
@@ -273,11 +279,20 @@ export default function App() {
         <OutlinePanel editor={editor} visible={outlineVisible} />
         <div className="mord-editor-shell">
           <Rulers />
-          <main className="mord-page" style={{ zoom: zoom / 100 }}>
+          <main
+            className="mord-page"
+            ref={pageRef}
+            style={{ zoom: zoom / 100 }}
+          >
+            <LineSelectZone
+              editor={editor}
+              pageRef={pageRef}
+              onSelectionUpdate={() => setTick((t) => t + 1)}
+            />
             <MarkdownEditor
               ref={editorRef}
               initialContent={loadedContent}
-              onReady={setEditor}
+              onReady={handleEditorReady}
               onUpdate={markDirty}
               onSelectionUpdate={() => setTick((t) => t + 1)}
             />
