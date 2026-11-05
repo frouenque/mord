@@ -1,0 +1,13 @@
+# Compiled by Cargo
+/target/
+
+# Tauri generated schemas (auto-completion / ACL)
+/gen/
+
+# Bundler scratch (si présents hors de target/)
+WixTools/
+*.pdb
+
+# Mobile icon sets non utilisés (desktop only pour l’instant)
+/icons/ios/
+/icons/android/
